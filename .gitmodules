@@ -1,0 +1,3 @@
+[submodule "buildbot_extensions"]
+	path = buildbot_extensions
+	url = https://gitlab.com/vengaer/buildbot_extensions.git
