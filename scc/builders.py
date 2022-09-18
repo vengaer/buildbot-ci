@@ -37,7 +37,7 @@ def ci_builder(workers):
     )
 
     # Configure fuzzer
-    factory.addStep(docker.Volume(name="scc_persistent", name="Persistent Volume"))
+    factory.addStep(docker.Volume(volume="scc_persistent", name="Persistent Volume"))
     factory.addStep(
         docker.Docker(
             command=[
