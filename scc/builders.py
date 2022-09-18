@@ -27,13 +27,17 @@ def ci_builder(workers):
     factory.addStep(docker.Build(tag=TAG))
 
     # Build
-    factory.addStep(docker.Docker(command=["make", "-j", nproc()], image=TAG))
+    factory.addStep(
+        docker.Docker(command=["make", "-j", nproc()], image=TAG, name="Build")
+    )
 
     # Tests
-    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "check"], image=TAG))
+    factory.addStep(
+        docker.Docker(command=["make", "-j", nproc(), "check"], image=TAG, name="Check")
+    )
 
     # Configure fuzzer
-    factory.addStep(docker.Volume(name="scc_persistent"))
+    factory.addStep(docker.Volume(name="scc_persistent", name="Persistent Volume"))
     factory.addStep(
         docker.Docker(
             command=[
@@ -45,6 +49,7 @@ def ci_builder(workers):
             ],
             volumes=["scc_persistent"],
             image=TAG,
+            name="Generate Defconfig",
         )
     )
     for var, val in (
@@ -57,6 +62,7 @@ def ci_builder(workers):
                 command=["conftool", "-c", "/scc_persistent/config", "set", var, val],
                 volumes=["scc_persistent"],
                 image=TAG,
+                name=f"Set {var}",
             )
         )
 
@@ -74,6 +80,7 @@ def ci_builder(workers):
                 ],
                 volumes=["scc_persistent"],
                 image=TAG,
+                name="Set CONFIG_FUZZ_TARGET",
             )
         )
         factory.addStep(
@@ -87,17 +94,22 @@ def ci_builder(workers):
                 ],
                 volumes=["scc_persistent"],
                 image=TAG,
+                name=f"Fuzz {fuzz_target}",
             )
         )
 
     # Lint
-    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "lint"], image=TAG))
+    factory.addStep(
+        docker.Docker(command=["make", "-j", nproc(), "lint"], image=TAG, name="Lint")
+    )
 
     # Docs
-    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "docs"], image=TAG))
+    factory.addStep(
+        docker.Docker(command=["make", "-j", nproc(), "docs"], image=TAG, name="Docs")
+    )
 
     # Remove dangling docker images
-    factory.addStep(docker.Prune())
+    factory.addStep(docker.Prune(), name="Prune")
 
     return util.BuilderConfig(
         name="scc", workernames=list(workers.keys()), factory=factory
