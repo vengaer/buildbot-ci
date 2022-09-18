@@ -1,20 +1,68 @@
 """ scc CI builders """
 
+import multiprocessing
+
 from buildbot.plugins import steps, util  # pylint: disable=import-error
 from buildbot_extensions.buildbot_extensions.steps import docker
+
+FUZZ_TARGETS = ["hashmap", "hashtab", "rbtree", "svec", "btree", "lower_bound"]
+
+IMAGE = "buildbot/scc"
+
+
+def nproc():
+    """Get number of processors on build host"""
+    return str(multiprocessing.cpu_count())
 
 
 def ci_builder(workers):
     """CI build steps"""
     factory = util.BuildFactory()
+    # Check out source
     factory.addStep(
         steps.Git(repourl="https://gitlab.com/vengaer/scc.git", mode="incremental")
     )
-    factory.addStep(steps.ShellCommand(command=["make", "docker-image"]))
-    factory.addStep(docker.Build(dockerfile="Dockerfile", tag="buildbot/scc"))
+
+    # Build docker image
+    factory.addStep(docker.Build(dockerfile="Dockerfile", tag=IMAGE))
+
+    # Build
+    factory.addStep(docker.Docker(command=["make", "-j", nproc()], image=IMAGE))
+
+    # Tests
     factory.addStep(
-        docker.Docker(command=["make"], container="buildbot/scc", workdir="/scc")
+        docker.Docker(command=["make", "-j", nproc(), "check"], image=IMAGE)
     )
+
+    # Configure fuzzer
+    for var, val in (
+        ("CONFIG_FUZZ_TIME", 10),
+        ("CONFIG_FUZZ_LENGTH", 32768),
+        ("CONFIG_FUZZ_TIMEOUT", 10),
+    ):
+        factory.addStep(
+            docker.Docker(command=["conftool", "set", var, val], image=IMAGE)
+        )
+
+    # Fuzz targets
+    for fuzz_target in FUZZ_TARGETS:
+        factory.addStep(
+            docker.Docker(
+                command=["conftool", "set", "CONFIG_FUZZ_TARGET", fuzz_target],
+                image=IMAGE,
+            )
+        )
+        factory.addStep(
+            docker.Docker(command=["make", "-j", nproc(), "fuzz"], image=IMAGE)
+        )
+
+    # Lint
+    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "lint"], image=IMAGE))
+
+    # Docs
+    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "docs"], image=IMAGE))
+
+    # Remove dangling docker images
     factory.addStep(docker.Prune())
 
     return util.BuilderConfig(
