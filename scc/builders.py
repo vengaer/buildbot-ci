@@ -32,21 +32,62 @@ def ci_builder(workers):
     # Tests
     factory.addStep(docker.Docker(command=["make", "-j", nproc(), "check"], image=TAG))
 
-    # Configure and run fuzzer
-    command = ['conftool', 'generate defconfig']
+    # Configure fuzzer
+    factory.addStep(docker.Volume(name="scc_persistent"))
+    factory.addStep(
+        docker.Docker(
+            command=[
+                "conftool",
+                "-c",
+                "/scc_persistent/config",
+                "generate",
+                "defconfig",
+            ],
+            volumes=["scc_persistent"],
+            image=TAG,
+        )
+    )
     for var, val in (
         ("CONFIG_FUZZ_TIME", 10),
         ("CONFIG_FUZZ_LENGTH", 32768),
         ("CONFIG_FUZZ_TIMEOUT", 10),
     ):
-        command += ['&&', 'conftool', 'set', var, val]
-
-    for fuzz_target in FUZZ_TARGETS:
-        cmd = command + ['&&', 'conftool', 'set', 'CONFIG_FUZZ_TARGET', fuzz_target]
-        cmd += ['&&', 'make', '-j', nproc(), 'fuzz']
-
         factory.addStep(
-            docker.Docker(command=cmd, image=TAG)
+            docker.Docker(
+                command=["conftool", "-c", "/scc_persistent/config", "set", var, val],
+                volumes=["scc_persistent"],
+                image=TAG,
+            )
+        )
+
+    # Fuzz targets
+    for fuzz_target in FUZZ_TARGETS:
+        factory.addStep(
+            docker.Docker(
+                command=[
+                    "conftool",
+                    "-c",
+                    "/scc_persistent/config",
+                    "set",
+                    "CONFIG_FUZZ_TARGET",
+                    fuzz_target,
+                ],
+                volumes=["scc_persistent"],
+                image=TAG,
+            )
+        )
+        factory.addStep(
+            docker.Docker(
+                command=[
+                    "make",
+                    "-j",
+                    nproc(),
+                    "fuzz",
+                    "CONFIG=/scc_persistent/config",
+                ],
+                volumes=["scc_persistent"],
+                image=TAG,
+            )
         )
 
     # Lint
