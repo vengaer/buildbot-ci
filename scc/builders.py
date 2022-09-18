@@ -33,6 +33,7 @@ def ci_builder(workers):
     factory.addStep(docker.Docker(command=["make", "-j", nproc(), "check"], image=TAG))
 
     # Configure fuzzer
+    factory.addStep(docker.Docker(command=["conftool", "generate", "defconfig"], image=TAG))
     for var, val in (
         ("CONFIG_FUZZ_TIME", 10),
         ("CONFIG_FUZZ_LENGTH", 32768),
