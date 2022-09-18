@@ -11,8 +11,9 @@ def ci_builder(workers):
         steps.Git(repourl="https://gitlab.com/vengaer/scc.git", mode="incremental")
     )
     factory.addStep(steps.ShellCommand(command=["make", "docker-image"]))
+    factory.addStep(docker.Build(dockerfile="Dockerfile", tag="buildbot/scc"))
     factory.addStep(
-        docker.Docker(command=["make"], container="scc/build", workdir="/scc")
+        docker.Docker(command=["make"], container="buildbot/scc", workdir="/scc")
     )
     factory.addStep(docker.Prune())
 
