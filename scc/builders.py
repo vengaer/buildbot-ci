@@ -80,7 +80,7 @@ def ci_builder(workers):
                 ],
                 volumes=["scc_persistent"],
                 image=TAG,
-                name="Set CONFIG_FUZZ_TARGET",
+                name=f"Set CONFIG_FUZZ_TARGET={fuzz_target}",
             )
         )
         factory.addStep(
