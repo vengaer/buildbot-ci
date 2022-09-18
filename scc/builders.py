@@ -32,25 +32,21 @@ def ci_builder(workers):
     # Tests
     factory.addStep(docker.Docker(command=["make", "-j", nproc(), "check"], image=TAG))
 
-    # Configure fuzzer
-    factory.addStep(docker.Docker(command=["conftool", "generate", "defconfig"], image=TAG))
+    # Configure and run fuzzer
+    command = ['conftool', 'generate defconfig']
     for var, val in (
         ("CONFIG_FUZZ_TIME", 10),
         ("CONFIG_FUZZ_LENGTH", 32768),
         ("CONFIG_FUZZ_TIMEOUT", 10),
     ):
-        factory.addStep(docker.Docker(command=["conftool", "set", var, val], image=TAG))
+        command += ['&&', 'conftool', 'set', var, val]
 
-    # Fuzz targets
     for fuzz_target in FUZZ_TARGETS:
+        cmd = command + ['&&', 'conftool', 'set', 'CONFIG_FUZZ_TARGET', fuzz_target]
+        cmd += ['&&', 'make', '-j', nproc(), 'fuzz']
+
         factory.addStep(
-            docker.Docker(
-                command=["conftool", "set", "CONFIG_FUZZ_TARGET", fuzz_target],
-                image=TAG,
-            )
-        )
-        factory.addStep(
-            docker.Docker(command=["make", "-j", nproc(), "fuzz"], image=TAG)
+            docker.Docker(command=cmd, image=TAG)
         )
 
     # Lint
