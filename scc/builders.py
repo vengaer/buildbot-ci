@@ -109,7 +109,7 @@ def ci_builder(workers):
     )
 
     # Remove dangling docker images
-    factory.addStep(docker.Prune(), name="Prune")
+    factory.addStep(docker.Prune(name="Prune"))
 
     return util.BuilderConfig(
         name="scc", workernames=list(workers.keys()), factory=factory
