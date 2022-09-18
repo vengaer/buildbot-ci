@@ -7,7 +7,7 @@ from buildbot_extensions.buildbot_extensions.steps import docker
 
 FUZZ_TARGETS = ["hashmap", "hashtab", "rbtree", "svec", "btree", "lower_bound"]
 
-IMAGE = "buildbot/scc"
+TAG = "buildbot/scc"
 
 
 def nproc():
@@ -24,15 +24,13 @@ def ci_builder(workers):
     )
 
     # Build docker image
-    factory.addStep(docker.Build(dockerfile="Dockerfile", tag=IMAGE))
+    factory.addStep(docker.Build(tag=TAG))
 
     # Build
-    factory.addStep(docker.Docker(command=["make", "-j", nproc()], image=IMAGE))
+    factory.addStep(docker.Docker(command=["make", "-j", nproc()], image=TAG))
 
     # Tests
-    factory.addStep(
-        docker.Docker(command=["make", "-j", nproc(), "check"], image=IMAGE)
-    )
+    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "check"], image=TAG))
 
     # Configure fuzzer
     for var, val in (
@@ -40,27 +38,25 @@ def ci_builder(workers):
         ("CONFIG_FUZZ_LENGTH", 32768),
         ("CONFIG_FUZZ_TIMEOUT", 10),
     ):
-        factory.addStep(
-            docker.Docker(command=["conftool", "set", var, val], image=IMAGE)
-        )
+        factory.addStep(docker.Docker(command=["conftool", "set", var, val], image=TAG))
 
     # Fuzz targets
     for fuzz_target in FUZZ_TARGETS:
         factory.addStep(
             docker.Docker(
                 command=["conftool", "set", "CONFIG_FUZZ_TARGET", fuzz_target],
-                image=IMAGE,
+                image=TAG,
             )
         )
         factory.addStep(
-            docker.Docker(command=["make", "-j", nproc(), "fuzz"], image=IMAGE)
+            docker.Docker(command=["make", "-j", nproc(), "fuzz"], image=TAG)
         )
 
     # Lint
-    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "lint"], image=IMAGE))
+    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "lint"], image=TAG))
 
     # Docs
-    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "docs"], image=IMAGE))
+    factory.addStep(docker.Docker(command=["make", "-j", nproc(), "docs"], image=TAG))
 
     # Remove dangling docker images
     factory.addStep(docker.Prune())
