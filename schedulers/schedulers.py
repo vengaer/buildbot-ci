@@ -1,19 +1,21 @@
-""" Buildbot schedulers """
+import inspect
+import importlib
+import os
 
 from buildbot.plugins import schedulers, util  # pylint: disable=import-error
 
-
-def ci_schedulers():
+def generate(builders):
     """Return a list of all schedulers"""
     sched = []
+    names = [b.name for b in builders]
     sched.append(
         schedulers.SingleBranchScheduler(
             name="all",
             change_filter=util.ChangeFilter(branch="master"),
             treeStableTimer=None,
-            builderNames=["scc"],
+            builderNames=names,
         )
     )
-    sched.append(schedulers.ForceScheduler(name="force", builderNames=["scc"]))
+    sched.append(schedulers.ForceScheduler(name="force", names))
 
     return sched
