@@ -1,4 +1,6 @@
-""" Continuous integration for scc """
+""" Continuous integration for scc
+    https://gitlab.com/vengaer/scc.git
+"""
 
 from .builders import ci_builder
 from .config import __url__
