@@ -17,6 +17,6 @@ def generate(builders):
             builderNames=names,
         )
     )
-    sched.append(schedulers.ForceScheduler(name="force", builderNames=names))
+    sched.append(schedulers.ForceScheduler(name="Force", builderNames=names))
 
     return sched
