@@ -1,7 +1,8 @@
 """ buildbot_extensions CI pipeline """
 
+import sys
 from buildbot.plugins import steps, util  # pylint: disable=import-error
-from buildbot_extensions.buildbot_extensions.steps import docker
+import buildbot_extensions
 
 TAG = "buildbot/buildbot-extensions"
 
@@ -19,7 +20,7 @@ def pipeline(workers):
     )
 
     # Build docker image
-    factory.addStep(docker.Build(tag=TAG, name="Build Image"))
+    factory.addStep(buildbot_extensions.steps.Build(tag=TAG, name="Build Image"))
 
     # Lint
     factory.addStep(

@@ -3,7 +3,7 @@
 import multiprocessing
 
 from buildbot.plugins import steps, util  # pylint: disable=import-error
-from buildbot_extensions.buildbot_extensions.steps import docker
+import buildbot_extensions
 
 FUZZ_TARGETS = ["hashmap", "hashtab", "rbtree", "svec", "btree", "lower_bound"]
 
@@ -28,7 +28,7 @@ def pipeline(workers):
     )
 
     # Build docker image
-    factory.addStep(docker.Build(tag=TAG, name="Build Image"))
+    factory.addStep(buildbot_extensions.steps.Build(tag=TAG, name="Build Image"))
 
     # Build
     factory.addStep(
