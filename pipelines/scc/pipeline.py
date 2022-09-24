@@ -20,11 +20,15 @@ def pipeline(workers):
     factory = util.BuildFactory()
     # Check out source
     factory.addStep(
-        steps.Git(repourl="https://gitlab.com/vengaer/scc.git", mode="incremental")
+        steps.Git(
+            repourl="https://gitlab.com/vengaer/scc.git",
+            mode="incremental",
+            name="Checkout",
+        )
     )
 
     # Build docker image
-    factory.addStep(docker.Build(tag=TAG))
+    factory.addStep(docker.Build(tag=TAG, name="Build Image"))
 
     # Build
     factory.addStep(

@@ -14,11 +14,12 @@ def pipeline(workers):
         steps.Git(
             repourl="https://gitlab.com/vengaer/buildbot_extensions.git",
             mode="incremental",
+            name="Checkout",
         )
     )
 
     # Build docker image
-    factory.addStep(docker.Build(tag=TAG))
+    factory.addStep(docker.Build(tag=TAG, name="Build Image"))
 
     # Lint
     factory.addStep(
