@@ -15,7 +15,7 @@ def nproc():
     return str(multiprocessing.cpu_count())
 
 
-def ci_builder(workers):
+def pipeline(workers):
     """CI build steps"""
     factory = util.BuildFactory()
     # Check out source

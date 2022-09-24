@@ -4,6 +4,7 @@ import os
 
 from buildbot.plugins import schedulers, util  # pylint: disable=import-error
 
+
 def generate(builders):
     """Return a list of all schedulers"""
     sched = []
@@ -16,6 +17,6 @@ def generate(builders):
             builderNames=names,
         )
     )
-    sched.append(schedulers.ForceScheduler(name="force", names))
+    sched.append(schedulers.ForceScheduler(name="force", builderNames=names))
 
     return sched

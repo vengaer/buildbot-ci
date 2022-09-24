@@ -2,6 +2,6 @@
     https://gitlab.com/vengaer/scc.git
 """
 
-from .builders import ci_builder
-from .config import __url__
-from .pollers import ci_poller
+from .pipeline import pipeline
+
+url = "https://gitlab.com/vengaer/scc.git"
