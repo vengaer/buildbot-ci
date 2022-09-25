@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict
 
-from buildbot.plugins import worker
+from buildbot.plugins import worker  # pylint: disable=import-error
 
 from . import pipelines
 from . import pollers

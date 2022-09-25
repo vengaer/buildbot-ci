@@ -2,6 +2,4 @@
     https://gitlab.com/vengaer/scc.git
 """
 
-from .pipeline import pipeline
-
-url = "https://gitlab.com/vengaer/scc.git"
+from .pipeline import pipeline, URL as url

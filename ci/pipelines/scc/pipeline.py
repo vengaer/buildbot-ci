@@ -3,12 +3,15 @@
 import multiprocessing
 
 from buildbot.plugins import steps, util  # pylint: disable=import-error
-from buildbot_extensions.steps import docker
-from buildbot.plugins import worker
+from buildbot.plugins import worker  # pylint: disable=import-error
+from buildbot_extensions.steps import (  # pylint: disable=import-error,no-name-in-module
+    docker,
+)
 
 FUZZ_TARGETS = ["hashmap", "hashtab", "rbtree", "svec", "btree", "lower_bound"]
 
 TAG = "buildbot/scc"
+URL = "https://gitlab.com/vengaer/scc.git"
 
 
 def nproc() -> str:
@@ -22,7 +25,7 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
     # Check out source
     factory.addStep(
         steps.Git(
-            repourl="https://gitlab.com/vengaer/scc.git",
+            repourl=URL,
             mode="incremental",
             name="Checkout",
         )

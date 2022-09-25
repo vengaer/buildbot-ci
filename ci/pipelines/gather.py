@@ -6,7 +6,7 @@ import sys
 from typing import List
 from types import ModuleType
 
-from buildbot.plugins import util, worker
+from buildbot.plugins import util, worker  # pylint: disable=import-error
 
 
 def _ci_modules() -> List[ModuleType]:

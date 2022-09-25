@@ -1,11 +1,13 @@
 """ buildbot_extensions CI pipeline """
 
-import sys
 from buildbot.plugins import steps, util  # pylint: disable=import-error
-from buildbot_extensions.steps import docker
-from buildbot.plugins import worker
+from buildbot.plugins import worker  # pylint: disable=import-error
+from buildbot_extensions.steps import (  # pylint: disable=import-error,no-name-in-module
+    docker,
+)
 
 TAG = "buildbot/buildbot-extensions"
+URL = "https://gitlab.com/vengaer/buildbot_extensions.git"
 
 
 def pipeline(workers: worker.Worker) -> util.BuilderConfig:
@@ -14,7 +16,7 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
     # Check out source
     factory.addStep(
         steps.Git(
-            repourl="https://gitlab.com/vengaer/buildbot_extensions.git",
+            repourl=URL,
             mode="incremental",
             name="Checkout",
         )

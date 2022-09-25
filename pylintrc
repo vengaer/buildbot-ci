@@ -1,0 +1,5 @@
+[MAIN]
+
+disable=
+    missing-docstring,
+    duplicate-code

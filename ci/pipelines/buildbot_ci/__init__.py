@@ -2,6 +2,4 @@
     https://gitlab.com/vengaer/buildbot-ci
  """
 
-from .pipeline import pipeline
-
-url = "https://gitlab.com/vengaer/buildbot-ci.git"
+from .pipeline import pipeline, URL as url

@@ -1,11 +1,7 @@
-import inspect
-import importlib
-import os
-
-from typing import List, Union
+from typing import List
 
 from buildbot.plugins import schedulers, util  # pylint: disable=import-error
-from buildbot.schedulers import base
+from buildbot.schedulers import base  # pylint: disable=import-error
 
 
 def generate(builders) -> List[base.BaseScheduler]:
