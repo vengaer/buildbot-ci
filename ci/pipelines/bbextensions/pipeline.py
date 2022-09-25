@@ -30,6 +30,22 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
         docker.Docker(command=["pylint", "buildbot_extensions"], image=TAG, name="Lint")
     )
 
+    # Type check
+    factory.addStep(
+        docker.Docker(
+            command=["mypy", "buildbot_extensions"], image=TAG, name="Type Check"
+        )
+    )
+
+    # Check formatting
+    factory.addStep(
+        docker.Docker(
+            command=["black", "--check", "buildbot_extensions"],
+            image=TAG,
+            name="Check Formatting",
+        )
+    )
+
     # Remove dangling docker images
     factory.addStep(docker.Prune(name="Prune"))
 
