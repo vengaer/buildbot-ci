@@ -26,14 +26,14 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
     factory.addStep(docker.Build(tag=TAG, name="Build Image"))
 
     # Lint
-    factory.addStep(docker.Docker(command=["pylint", "ci"], image=TAG, name="Lint"))
+    factory.addStep(docker.ShellCommand(command=["pylint", "ci"], image=TAG, name="Lint"))
 
     # Type check
-    factory.addStep(docker.Docker(command=["mypy", "ci"], image=TAG, name="Type Check"))
+    factory.addStep(docker.ShellCommand(command=["mypy", "ci"], image=TAG, name="Type Check"))
 
     # Check formatting
     factory.addStep(
-        docker.Docker(
+        docker.ShellCommand(
             command=["black", "--check", "ci"], image=TAG, name="Check Formatting"
         )
     )
