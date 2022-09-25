@@ -2,10 +2,13 @@ import inspect
 import importlib
 import os
 
+from typing import List, Union
+
 from buildbot.plugins import schedulers, util  # pylint: disable=import-error
+from buildbot.schedulers import base
 
 
-def generate(builders):
+def generate(builders) -> List[base.BaseScheduler]:
     """Return a list of all schedulers"""
     sched = []
     names = [b.name for b in builders]

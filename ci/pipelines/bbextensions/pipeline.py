@@ -2,12 +2,13 @@
 
 import sys
 from buildbot.plugins import steps, util  # pylint: disable=import-error
-import buildbot_extensions
+from buildbot_extensions.steps import docker
+from buildbot.plugins import worker
 
 TAG = "buildbot/buildbot-extensions"
 
 
-def pipeline(workers):
+def pipeline(workers: worker.Worker) -> util.BuilderConfig:
     """CI build steps"""
     factory = util.BuildFactory()
     # Check out source
@@ -20,7 +21,7 @@ def pipeline(workers):
     )
 
     # Build docker image
-    factory.addStep(buildbot_extensions.steps.Build(tag=TAG, name="Build Image"))
+    factory.addStep(docker.Build(tag=TAG, name="Build Image"))
 
     # Lint
     factory.addStep(

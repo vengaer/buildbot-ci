@@ -3,19 +3,20 @@
 import multiprocessing
 
 from buildbot.plugins import steps, util  # pylint: disable=import-error
-import buildbot_extensions
+from buildbot_extensions.steps import docker
+from buildbot.plugins import worker
 
 FUZZ_TARGETS = ["hashmap", "hashtab", "rbtree", "svec", "btree", "lower_bound"]
 
 TAG = "buildbot/scc"
 
 
-def nproc():
+def nproc() -> str:
     """Get number of processors on build host"""
     return str(multiprocessing.cpu_count())
 
 
-def pipeline(workers):
+def pipeline(workers: worker.Worker) -> util.BuilderConfig:
     """CI build steps"""
     factory = util.BuildFactory()
     # Check out source
@@ -28,7 +29,7 @@ def pipeline(workers):
     )
 
     # Build docker image
-    factory.addStep(buildbot_extensions.steps.Build(tag=TAG, name="Build Image"))
+    factory.addStep(docker.Build(tag=TAG, name="Build Image"))
 
     # Build
     factory.addStep(
