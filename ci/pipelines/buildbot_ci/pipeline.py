@@ -5,6 +5,9 @@ from buildbot.plugins import worker  # pylint: disable=import-error
 from buildbot_extensions.steps import (  # pylint: disable=import-error, no-name-in-module
     docker,
 )
+from buildbot_extensions.steps.docker import (  # pylint: disable=import-error,no-name-in-module
+    python,
+)
 
 TAG = "buildbot/buildbot-ci"
 URL = "https://gitlab.com/vengaer/buildbot-ci.git"
@@ -26,17 +29,13 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
     factory.addStep(docker.Build(tag=TAG, name="Build Image"))
 
     # Lint
-    factory.addStep(docker.ShellCommand(command=["pylint", "ci"], image=TAG, name="Lint"))
+    factory.addStep(python.Pylint(module="ci", image=TAG, name="Lint"))
 
     # Type check
-    factory.addStep(docker.ShellCommand(command=["mypy", "ci"], image=TAG, name="Type Check"))
+    factory.addStep(python.Mypy(module="ci", image=TAG, name="Type Check"))
 
     # Check formatting
-    factory.addStep(
-        docker.ShellCommand(
-            command=["black", "--check", "ci"], image=TAG, name="Check Formatting"
-        )
-    )
+    factory.addStep(python.Black(module="ci", image=TAG, name="Check Formatting"))
 
     # Remove dangling docker images
     factory.addStep(docker.Prune(name="Prune"))

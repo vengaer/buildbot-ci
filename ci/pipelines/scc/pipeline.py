@@ -41,7 +41,9 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
 
     # Tests
     factory.addStep(
-        docker.ShellCommand(command=["make", "-j", nproc(), "check"], image=TAG, name="Check")
+        docker.ShellCommand(
+            command=["make", "-j", nproc(), "check"], image=TAG, name="Check"
+        )
     )
 
     # Configure fuzzer
@@ -112,12 +114,16 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
 
     # Lint
     factory.addStep(
-        docker.ShellCommand(command=["make", "-j", nproc(), "lint"], image=TAG, name="Lint")
+        docker.ShellCommand(
+            command=["make", "-j", nproc(), "lint"], image=TAG, name="Lint"
+        )
     )
 
     # Docs
     factory.addStep(
-        docker.ShellCommand(command=["make", "-j", nproc(), "docs"], image=TAG, name="Docs")
+        docker.ShellCommand(
+            command=["make", "-j", nproc(), "docs"], image=TAG, name="Docs"
+        )
     )
 
     # Remove dangling docker images
