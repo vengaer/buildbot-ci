@@ -114,7 +114,7 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
                     ],
                     volumes=["scc_persistent"],
                     image=TAG,
-                    name=f"Set CONFIG_FUZZ_TARGET={fuzz_target} for chunksize={chunksize}",
+                    name=f"Set target {fuzz_target} w/ chunksize {chunksize}",
                 )
             )
             factory.addStep(
