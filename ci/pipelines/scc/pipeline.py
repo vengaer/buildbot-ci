@@ -86,6 +86,7 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
                     "CONFIG_ARENA_CHUNKSIZE",
                     str(chunksize),
                 ],
+                volumes=["scc_persistent"],
                 image=TAG,
                 name=f"Set CONFIG_ARENA_CHUNKSIZE={chunksize}",
             )
@@ -94,7 +95,14 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
         # Tests
         factory.addStep(
             docker.ShellCommand(
-                command=["make", "-j", nproc(), "check"],
+                command=[
+                    "make",
+                    "-j",
+                    nproc(),
+                    "check",
+                    "CONFIG=/scc_persistent/config",
+                ],
+                volumes=["scc_persistent"],
                 image=TAG,
                 name=f"Check w/ chunksize={chunksize}",
             )
