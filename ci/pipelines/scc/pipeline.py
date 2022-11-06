@@ -140,6 +140,22 @@ def pipeline(workers: worker.Worker) -> util.BuilderConfig:
                 )
             )
 
+        # Mutation testing
+        factory.addStep(
+            docker.ShellCommand(
+                command=[
+                    "make",
+                    "-j",
+                    nproc(),
+                    "mutate",
+                    "CONFIG=/scc_persistent/config",
+                ],
+                volumes=["scc_persistent"],
+                image=TAG,
+                name=f"Mutate",
+            )
+        )
+
     # Lint
     factory.addStep(
         docker.ShellCommand(
